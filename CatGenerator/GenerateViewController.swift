@@ -3,7 +3,6 @@
 //  CatGenerator
 //
 //  Created by salfetka on 01.11.2024.
-//
 
 import UIKit
 
@@ -14,18 +13,30 @@ class GenerateViewController: UIViewController {
     @IBOutlet weak var generateLabel: UILabel!
     @IBOutlet weak var generateIndicator: UIActivityIndicatorView!
     @IBOutlet weak var scrollView: UIScrollView!
+    @IBOutlet weak var generateTextField: UITextField!
     
     @IBAction func onClickGenerateButton(_ sender: Any) {
-        downloadCat()
+        generateIndicator.startAnimating()
+        generateButton.isEnabled = false
+        downloadCat(with: generateTextField.text!)
     }
     
-    private func downloadCat() {
-            guard let url = URL(string: "https://cataas.com/cat") else {
-                return
-            }
-            
+    private func downloadCat(with text: String) {
+        guard let url = URL(string: "https://cataas.com/cat/says/\(text)?FontSize=50&fontColor=white") else {
+                    return
+                }
+
             let task = URLSession.shared.dataTask(with: url) { data, response, error in
                 guard let data = data else {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.generateLabel.text = "Download error"
+                        self?.generateIndicator.stopAnimating()
+                        self?.generateButton.isEnabled = true
+                    }
+                    return
+                }
+                
+                guard text != "" else {
                     DispatchQueue.main.async { [weak self] in
                         self?.generateLabel.text = "Download error"
                         self?.generateIndicator.stopAnimating()
